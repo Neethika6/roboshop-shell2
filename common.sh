@@ -90,3 +90,32 @@ systemd_setup()
     systemctl start $appname
     VALIDATE $? "Started $appname"
 }
+
+mysql_setup()
+{
+    dnf install mysql-server -y &>>$LOG_FILE
+    VALIDATE $? "Install $appname"
+
+    systemctl enable mysqld
+    systemctl start mysqld
+    VALIDATE $? "Enable and start $appname"
+
+    echo "Enter root passowrd"
+    read -s ROOT_PASS
+
+    mysql_secure_installation --set-root-pas $ROOT_PASS
+}
+
+maven_setup()
+{
+    dnf install maven -y &>>$LOG_FILE
+    VALIDATE $? "Installing maven"
+
+
+    mvn clean package &>>$LOG_FILE
+    VALIDATE $? "Installing java build package"
+
+    cd /app
+    mv target/shipping-1.0.jar shipping.jar 
+    VALIDATE $? "rename and moving the jar file"
+}
